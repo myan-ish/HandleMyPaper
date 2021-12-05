@@ -5,26 +5,31 @@ from rest_framework.response import Response
 from rest_framework import authentication, permissions
 from rest_framework.views import APIView
 from rest_framework import mixins, generics
+from django.utils.decorators import method_decorator
 
 from CustomUser.models import UserProfile
+from assignHelp.decorator import check_token
 
 from .models import Task
 from .serializers import TaskSerialzier 
 
+@method_decorator(check_token, name='dispatch')
 class TestList(generics.ListAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerialzier
 
+@method_decorator(check_token, name='dispatch')
 class Test(generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerialzier
     lookup_fields = "pk"
 
+@method_decorator(check_token, name='dispatch')
 class CreateTask(generics.CreateAPIView):
     queryset=Task.objects.all()
     serializer_class = TaskSerialzier
 
-
+@method_decorator(check_token, name='dispatch')
 class AssignTask(APIView):
     def post(self,request):
         task=request.data.get('task')
@@ -44,6 +49,7 @@ class AssignTask(APIView):
 
         return Response({'status':'success'})
 
+@method_decorator(check_token, name='dispatch')
 class UnassignedTask(generics.ListAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerialzier
@@ -51,6 +57,7 @@ class UnassignedTask(generics.ListAPIView):
     def get_queryset(self):
         return self.queryset.filter(doer=None)
 
+@method_decorator(check_token, name='dispatch')
 class AcceptTask(APIView):
     def post(self,request):
         userID=request.data.get('userID')
@@ -66,6 +73,7 @@ class AcceptTask(APIView):
         else:
             raise HttpResponseBadRequest("Task doesn't exists.")
 
+@method_decorator(check_token, name='dispatch')
 class DeclineTask(APIView):
     def post(self,request):
         userID=request.data.get('userID')
@@ -81,6 +89,7 @@ class DeclineTask(APIView):
         else:
             raise HttpResponseBadRequest("Task doesn't exists.")
 
+@method_decorator(check_token, name='dispatch')
 class ReviewTask(APIView):
     def post(self,request):
         action=request.data.get('action')
