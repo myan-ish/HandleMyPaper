@@ -4,7 +4,6 @@ from rest_framework.authtoken import serializers
 from django.utils.decorators import method_decorator
 from rest_framework.response import Response
 from rest_framework import authentication, permissions
-from rest_framework.views import APIView
 from rest_framework import mixins, generics
 from django.contrib.auth.models import User
 from django.http import request
@@ -43,7 +42,7 @@ def smtp(payload,email):
     subject="Welcome to Sweed."
     message="Hello, "+" Please click on this link to activate your account: "+ 'http://127.0.0.1:8000/user/activate/?token='+str(token)
     recepient=email
-    send_mail(subject,message,settings.EMAIL_HOST_USER,[recepient],fail_silently=False)
+    send_mail(subject,message,settings.EMAIL_HOST_USER,[recepient])
 
 def token_validity(request):
     token = request.headers.get('token')
