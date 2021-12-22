@@ -1,8 +1,8 @@
-from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseNotFound
+from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseNotFound
 from django.shortcuts import render
 from rest_framework.authtoken import serializers
 from rest_framework.response import Response
-from rest_framework import authentication, permissions
+from rest_framework import authentication, permissions,exceptions
 from rest_framework.views import APIView
 from rest_framework import mixins, generics
 from django.utils.decorators import method_decorator
@@ -23,6 +23,34 @@ class Test(generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerialzier
     lookup_fields = "pk"
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        assert lookup_url_kwarg in self.kwargs, (
+            'Expected view %s to be called with a URL keyword argument '
+            'named "%s". Fix your URL conf, or set the `.lookup_field` '
+            'attribute on the view correctly.' %
+            (self.__class__.__name__, lookup_url_kwarg)
+        )
+
+        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
+        obj = generics.get_object_or_404(queryset, **filter_kwargs)
+        
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        if obj.user==self.kwargs['user']:
+            return obj
+        else:
+            raise exceptions.NotAcceptable("User not valid.")
+
+    def post(self, request, *args, **kwargs):
+
+        return self.partial_update(request, *args, **kwargs)
 
 @method_decorator(check_token, name='dispatch')
 class CreateTask(generics.CreateAPIView):
@@ -60,41 +88,43 @@ class UnassignedTask(generics.ListAPIView):
 @method_decorator(check_token, name='dispatch')
 class AcceptTask(APIView):
     def post(self,request,*args, **kwargs):
-        userID=request.data.get('userID')
+        user=self.kwargs['user']
         taskID=request.data.get('taskID')
 
         task_query=Task.objects.filter(id=taskID)
         
         if task_query.exists():
             task_obj=task_query[0]
-            task_obj.doer_id=taskID
-            task_obj.status=3
-            task_obj.save()
+            if task_obj.doer==user:
+                task_obj.status=3
+                task_obj.save()
+                return Response({"status":"success"})
+            else:
+                return HttpResponseNotAllowed('Not allowed')
         else:
-            raise HttpResponseBadRequest("Task doesn't exists.")
+            return HttpResponseBadRequest("Task doesn't exists.")
 
 @method_decorator(check_token, name='dispatch')
 class DeclineTask(APIView):
     def post(self,request,*args, **kwargs):
-        userID=request.data.get('userID')
         taskID=request.data.get('taskID')
 
         task_query=Task.objects.filter(id=taskID)
         
         if task_query.exists():
             task_obj=task_query[0]
-            task_obj.doer_id=taskID
-            task_obj.status=1
-            task_obj.save()
+            if task_obj.doer==self.kwargs['user']:
+                task_obj.status=1
+                task_obj.save()
         else:
-            raise HttpResponseBadRequest("Task doesn't exists.")
+            return HttpResponseBadRequest("Task doesn't exists.")
 
 @method_decorator(check_token, name='dispatch')
 class ReviewTask(APIView):
     def post(self,request,*args, **kwargs):
         action=request.data.get('action')
         taskID=request.data.get('taskID')
-        userID=request.data.get('userID')
+        userID=self.kwargs['user'].id
         task_query=Task.objects.filter(id=taskID,user_id=userID)
         if task_query.exists():
             task_obj=task_query[0]
@@ -103,8 +133,8 @@ class ReviewTask(APIView):
             if action=='2':
                 task_obj.status=4
             if action is None:
-                raise HttpResponseBadRequest('Invalid Selection.')
+                return HttpResponseBadRequest('Invalid Selection.')
         else:
-            raise HttpResponseNotFound('Task not found.')
+            return HttpResponseNotFound('Task not found.')
 
 
