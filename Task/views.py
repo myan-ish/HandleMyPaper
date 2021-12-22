@@ -31,7 +31,7 @@ class CreateTask(generics.CreateAPIView):
 
 @method_decorator(check_token, name='dispatch')
 class AssignTask(APIView):
-    def post(self,request):
+    def post(self,request,*args, **kwargs):
         task=request.data.get('task')
         user=request.data.get('user')
 
@@ -59,7 +59,7 @@ class UnassignedTask(generics.ListAPIView):
 
 @method_decorator(check_token, name='dispatch')
 class AcceptTask(APIView):
-    def post(self,request):
+    def post(self,request,*args, **kwargs):
         userID=request.data.get('userID')
         taskID=request.data.get('taskID')
 
@@ -75,7 +75,7 @@ class AcceptTask(APIView):
 
 @method_decorator(check_token, name='dispatch')
 class DeclineTask(APIView):
-    def post(self,request):
+    def post(self,request,*args, **kwargs):
         userID=request.data.get('userID')
         taskID=request.data.get('taskID')
 
@@ -91,7 +91,7 @@ class DeclineTask(APIView):
 
 @method_decorator(check_token, name='dispatch')
 class ReviewTask(APIView):
-    def post(self,request):
+    def post(self,request,*args, **kwargs):
         action=request.data.get('action')
         taskID=request.data.get('taskID')
         userID=request.data.get('userID')
