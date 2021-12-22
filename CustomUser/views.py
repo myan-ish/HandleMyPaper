@@ -1,6 +1,7 @@
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from rest_framework.authtoken import serializers
+from django.utils.decorators import method_decorator
 from rest_framework.response import Response
 from rest_framework import authentication, permissions
 from rest_framework.views import APIView
@@ -201,13 +202,13 @@ class DeliveryLogin(APIView):
 
         return response
 
+@method_decorator(check_token, name='dispatch')
 class GetUser(APIView):
-    @check_token
-    def get(self,request):
+    def get(self,request,*args, **kwargs):
         response=Response()
         # print(request.user.id)
         response.data={
-            'profile':ProfileSeriL(Profile.objects.get(user_id=request.user.id)).data,
+            'profile':ProfileSeriL(Profile.objects.get(user=self.kwargs['user'])).data,
             'user':UserSer(request.user).data
         }
         return response

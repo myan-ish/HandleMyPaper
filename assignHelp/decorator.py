@@ -19,7 +19,7 @@ def check_token(function):
             token=request.headers.get('token')
             data=jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         except ExpiredSignatureError:
-            return HttpResponseBadRequest('Token Expired, Please refetch access token')
+            return HttpResponse('Token Expired, Please refetch access token',status=406)
         except InvalidSignatureError:
             return HttpResponseForbidden('Token Invalid')
         except IndexError:
