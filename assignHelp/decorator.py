@@ -14,9 +14,9 @@ def check_token(function):
     @wraps(function)
     def wrap(request:request, *args, **kwargs):
         try:
-            if request.headers.get('token') is None:
+            if request.headers.get('Authorization') is None:
                 request = args[0]
-            token=request.headers.get('token')
+            token=request.headers['Authorization'].split(' ')[1]
             data=jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         except ExpiredSignatureError:
             return HttpResponse('Token Expired, Please refetch access token',status=406)
