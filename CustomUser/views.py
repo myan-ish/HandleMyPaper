@@ -1,3 +1,4 @@
+from django import http
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from rest_framework.authtoken import serializers
@@ -8,7 +9,12 @@ from rest_framework import mixins, generics
 from django.contrib.auth.models import User
 from django.http import request
 from django.http import response
-from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
+from django.http.response import (
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseForbidden,
+    JsonResponse,
+)
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from rest_framework.response import Response
@@ -16,10 +22,16 @@ from rest_framework import authentication, exceptions, permissions, serializers
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework.parsers import JSONParser
-from CustomUser.models import Profile, UserProfile
+from CustomUser.models import Expert, Fields, Profile, UserProfile
 from assignHelp.decorator import check_token
 from .utils import generate_access_token, generate_refresh_token
-from CustomUser.serializer import ProfileSeriL, ProfileSerializer, UserSer, UserSerializer
+from CustomUser.serializer import (
+    FieldSer,
+    ProfileSeriL,
+    ProfileSerializer,
+    UserSer,
+    UserSerializer,
+)
 from django.core.mail import send_mail
 from assignHelp import settings
 import jwt
@@ -30,186 +42,204 @@ from jwt import exceptions as e
 
 
 def decypher(token):
-    data=jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-    return data['user']
+    data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+    return data["user"]
+
 
 def encrypt(payload):
-    token=jwt.encode(payload,settings.SECRET_KEY)
+    token = jwt.encode(payload, settings.SECRET_KEY)
     return token
 
-def smtp(payload,email):
-    token=encrypt({'user':payload})
-    subject="Welcome to Sweed."
-    message="Hello, "+" Please click on this link to activate your account: "+ 'http://127.0.0.1:8000/user/activate/?token='+str(token)
-    recepient=email
-    send_mail(subject,message,settings.EMAIL_HOST_USER,[recepient])
+
+def smtp(payload, email):
+    token = encrypt({"user": payload})
+    subject = "Welcome to Sweed."
+    message = (
+        "Hello, "
+        + " Please click on this link to activate your account: "
+        + "http://127.0.0.1:8000/user/activate/?token="
+        + str(token)
+    )
+    recepient = email
+    send_mail(subject, message, settings.EMAIL_HOST_USER, [recepient])
+
 
 def token_validity(request):
-    token = request.headers.get('token')
+    token = request.headers.get("token")
     try:
-        data=jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        return HttpResponse('Valid')
+        data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        return HttpResponse("Valid")
     except e.ExpiredSignatureError:
-        return HttpResponseBadRequest('Token Expired, Please refetch access token')
+        return HttpResponseBadRequest("Token Expired, Please refetch access token")
     except e.InvalidSignatureError:
-        return HttpResponseForbidden('Token Invalid')
+        return HttpResponseForbidden("Token Invalid")
     except e.DecodeError:
-        return HttpResponseForbidden('Token Invalid')
+        return HttpResponseForbidden("Token Invalid")
+
 
 @csrf_exempt
 def activation(request):
 
     try:
-        token_get=request.GET.get('token')
-        
-        decrypt=decypher(bytes(token_get,'utf-8'))
-        user=UserProfile.objects.get(id=decrypt)
+        token_get = request.GET.get("token")
+
+        decrypt = decypher(bytes(token_get, "utf-8"))
+        user = UserProfile.objects.get(id=decrypt)
         if user:
-            user.is_active=True
+            user.is_active = True
             user.save()
     except:
         return JsonResponse(status=400)
-    return JsonResponse({'message':'Congrats, Your account is activaed.'})
+    return JsonResponse({"message": "Congrats, Your account is activaed."})
+
 
 class Login(APIView):
     # queryset = UserSerializer.objects.all()
     serializer_class = UserSerializer
 
-    def post(self,request):
-        email = request.data.get('email')
-        password = request.data.get('password')
-        response=Response()
+    def post(self, request):
+        email = request.data.get("email")
+        password = request.data.get("password")
+        response = Response()
 
         if (email is None) or (password is None):
-            raise exceptions.AuthenticationFailed(
-            'email and password required')
+            raise exceptions.AuthenticationFailed("email and password required")
 
         user = UserProfile.objects.filter(email=email).first()
-        if(user is None):
-            raise exceptions.AuthenticationFailed('user not found')
-        if (not user.check_password(password)):
-            raise exceptions.AuthenticationFailed('wrong password')
-    
+        if user is None:
+            raise exceptions.AuthenticationFailed("user not found")
+        if not user.check_password(password):
+            raise exceptions.AuthenticationFailed("wrong password")
+
         serialized_user = UserSerializer(user).data
         access_token = generate_access_token(user)
         refresh_token = generate_refresh_token(user)
 
-        response.set_cookie(key='refreshtoken', value=refresh_token, httponly=True)
+        response.set_cookie(key="refreshtoken", value=refresh_token, httponly=True)
         response.data = {
-            'access_token': access_token,
-            'refresh_token':refresh_token, 
+            "access_token": access_token,
+            "refresh_token": refresh_token,
         }
 
         return response
 
+
 class Register(APIView):
-    
+
     serializer_class = UserSerializer
 
-    def post(self,request):
+    def post(self, request):
         data = JSONParser().parse(request)
-        email=data['email']
-        data['user']={'username': data['username'],'email': data['email'], 'password': data['password']}
+        email = data["email"]
+        data["user"] = {
+            "username": data["username"],
+            "email": data["email"],
+            "password": data["password"],
+        }
         try:
-            userp = UserProfile.objects.get(email=data['email'])
+            userp = UserProfile.objects.get(email=data["email"])
         except:
-            userp=None
+            userp = None
         try:
-            prof = Profile.objects.get(email=data['email'])
+            prof = Profile.objects.get(email=data["email"])
         except:
-            prof=None
+            prof = None
 
-        if userp !=None or  prof!=None:
-            raise exceptions.NotAcceptable('Username or Email already in use.')
+        if userp != None or prof != None:
+            raise exceptions.NotAcceptable("Username or Email already in use.")
 
-        serializer2= ProfileSerializer(data=data)
+        serializer2 = ProfileSerializer(data=data)
 
         if serializer2.is_valid():
-           
+
             serializer2.save()
-            user=UserProfile.objects.get(email=email)
-            smtp(user.pk,email)
-            return Response({'User successfully created'})
+            user = UserProfile.objects.get(email=email)
+            smtp(user.pk, email)
+            return Response({"User successfully created"})
         else:
             print(serializer2.errors)
-            raise exceptions.ValidationError('User validation Error')
+            raise exceptions.ValidationError("User validation Error")
+
+
+@method_decorator(check_token, name="dispatch")
+class RegisterExpert(APIView):
+    def post(self, request, *args, **kwargs):
+        field = request.data.get("field")
+        cv = request.data.get("cv")
+
+        expert_obj, created = Expert.objects.get_or_create(user=self.kwargs["user"])
+        if not created:
+            return HttpResponseBadRequest("User is already expert.")
+        for _ in field:
+            try:
+                field_obj=Fields.objects.get(id=_)
+                expert_obj.field.add(field_obj.id)
+            except:
+                pass
+
+        expert_obj.cv = cv
+        expert_obj.save()
+        return HttpResponse("Success")
+
 
 class UpdateProfile(generics.UpdateAPIView):
     # queryset = Profile.objects.all()
     # queryset = Item.objects.all()
     serializer_class = ProfileSerializer
-    lookup_field='id'
+    lookup_field = "id"
 
     def get_object(self):
-        return Profile.objects.get(id=self.kwargs['id'])
+        return Profile.objects.get(id=self.kwargs["id"])
 
     def post(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
-class UpdateUserPw(APIView):
 
+class UpdateUserPw(APIView):
     def post(self, request, *args, **kwargs):
-        currentPassword=request.data.get('currentPassword')
-        newPw1=request.data.get('newPassword')
-        newPw2=request.data.get('validatePassword')
-        print(newPw1,newPw1)
+        currentPassword = request.data.get("currentPassword")
+        newPw1 = request.data.get("newPassword")
+        newPw2 = request.data.get("validatePassword")
+        print(newPw1, newPw1)
         if newPw1 == newPw2:
-            user_obj=UserProfile.objects.get(id=kwargs['id'])
+            user_obj = UserProfile.objects.get(id=kwargs["id"])
 
             if user_obj.check_password(currentPassword):
                 user_obj.set_password(newPw1)
                 user_obj.save()
-                return HttpResponse('Password Changed Successfully.')
+                return HttpResponse("Password Changed Successfully.")
             else:
-                raise ValueError('Password Error, Please check again.')
+                raise ValueError("Password Error, Please check again.")
         else:
             raise ValueError("Password Doesn't match.")
 
 
-
-
-
-class DeliveryLogin(APIView):
-    serializer_class = UserSerializer
-
-    def post(self,request):
-        email = request.data.get('email')
-        password = request.data.get('password')
-
-        response=Response()
-
-        if (email is None) or (password is None):
-            raise exceptions.AuthenticationFailed(
-            'email and password required')
-
-        group=UserProfile.objects.filter()
-        user = UserProfile.objects.filter(email=email,groups__name='delivery').first()
-        if(user is None):
-            raise exceptions.AuthenticationFailed('user not found')
-        if (not user.check_password(password)):
-            raise exceptions.AuthenticationFailed('wrong password')
-    
-        serialized_user = UserSerializer(user).data
-        access_token = generate_access_token(user)
-        refresh_token = generate_refresh_token(user)
-
-        response.set_cookie(key='refreshtoken', value=refresh_token, httponly=True)
-        response.data = {
-            'access_token': access_token,
-            'refresh_token':refresh_token, 
-        }
-
-        return response
-
-@method_decorator(check_token, name='dispatch')
+@method_decorator(check_token, name="dispatch")
 class GetUser(APIView):
-    def get(self,request,*args, **kwargs):
-        response=Response()
+    def get(self, request, *args, **kwargs):
+        response = Response()
         # print(request.user.id)
-        print(self.kwargs['user'])
-        response.data={
-            'profile':ProfileSeriL(Profile.objects.get(user=self.kwargs['user'])).data,
-            'user':UserSer(self.kwargs['user']).data
+        print(self.kwargs["user"])
+        response.data = {
+            "profile": ProfileSeriL(Profile.objects.get(user=self.kwargs["user"])).data,
+            "user": UserSer(self.kwargs["user"]).data,
         }
         return response
-        
+
+@method_decorator(check_token, name="dispatch")
+class GetFields(APIView):
+    def get(self,request,*args, **kwargs):
+        fields=Fields.objects.all()
+        return Response(FieldSer(fields,many=True).data)
+
+@method_decorator(check_token, name="dispatch")
+class ReferPoint(APIView):
+    def get(self,request,*args, **kwargs):
+        referCode=self.kwargs['user'].referedBy
+        referedUser=Profile.objects.filter(referCode=referCode).first()
+        if referedUser:
+            referedUser.referPoints+=5
+            referedUser.save()
+            return HttpResponse('Success')
+        else:
+            return HttpResponse('Not found')

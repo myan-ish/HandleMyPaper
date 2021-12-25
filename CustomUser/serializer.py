@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group, User
 from django.db.models import fields, manager
 from rest_framework import serializers
-from .models import  Profile,UserProfile
+from .models import  Fields, Profile,UserProfile
 from CustomUser import models
 
 class UserSerializer(serializers.ModelSerializer):
@@ -46,3 +46,8 @@ class UserSer(serializers.ModelSerializer):
     class Meta:
         model=UserProfile
         fields=['id','username','email']
+
+class FieldSer(serializers.ModelSerializer):
+    class Meta:
+        model=Fields
+        fields='__all__'
