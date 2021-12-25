@@ -25,11 +25,10 @@ class Task(models.Model):
     status=models.IntegerField(choices=((status.value,status.name) for status in statusChoice),default=1)
 
     title=models.TextField(null=True,blank=True)
-    topic=models.ForeignKey(Topic,on_delete=models.CASCADE)
+    topic=models.ForeignKey(Topic,on_delete=models.CASCADE,null=True)
     description=models.TextField(null=True,blank=True)
     completion_Date=models.DateField(null=True,blank=True)
     verified=models.BooleanField(default=False)
-    gallery=models.ManyToManyField(MediaFile)
     attachment=models.ManyToManyField(File)
     active=models.BooleanField(default=False)
     slug=models.SlugField(null=True,unique=True)
