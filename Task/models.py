@@ -29,7 +29,7 @@ class Task(models.Model):
     description=models.TextField(null=True,blank=True)
     completion_Date=models.DateField(null=True,blank=True)
     verified=models.BooleanField(default=False)
-    attachment=models.ManyToManyField(File)
+    attachment=models.FileField(upload_to='documents/',null=True,blank=True)
     active=models.BooleanField(default=False)
     slug=models.SlugField(null=True,unique=True)
 
