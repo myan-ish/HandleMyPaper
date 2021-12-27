@@ -1,3 +1,4 @@
+from functools import partial
 from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseNotFound
 from django.shortcuts import render
 from rest_framework.authtoken import serializers
@@ -17,6 +18,16 @@ from .serializers import TaskSerialzier
 class TestList(generics.ListAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerialzier
+
+    def post(self,request,*args, **kwargs):
+        data=request.data
+        data['user']=self.kwargs['user'].id
+        serializer=TaskSerialzier(data=data,partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return HttpResponse("Success")
+        else:
+            return Response(serializer.errors,status=400)
 
 @method_decorator(check_token, name='dispatch')
 class Test(generics.RetrieveUpdateDestroyAPIView):
@@ -52,10 +63,13 @@ class Test(generics.RetrieveUpdateDestroyAPIView):
 
         return self.partial_update(request, *args, **kwargs)
 
-@method_decorator(check_token, name='dispatch')
-class CreateTask(generics.CreateAPIView):
-    queryset=Task.objects.all()
-    serializer_class = TaskSerialzier
+# @method_decorator(check_token, name='dispatch')
+# class CreateTask(generics.CreateAPIView):
+#     queryset=Task.objects.all()
+#     serializer_class = TaskSerialzier
+
+    
+        
 
 @method_decorator(check_token, name='dispatch')
 class AssignTask(APIView):

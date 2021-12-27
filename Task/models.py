@@ -38,7 +38,7 @@ class Task(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = slugify(self.title)
         return super().save(*args, **kwargs)
 
 

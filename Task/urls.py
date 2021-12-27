@@ -6,8 +6,8 @@ from rest_framework.authtoken import views
 from .views import AcceptTask, AssignTask, DeclineTask, ReviewTask, Test, TestList, UnassignedTask
 
 urlpatterns = [
-    path('test/<int:pk>/',Test.as_view()),
-    path('test',TestList.as_view()),
+    path('task/<int:pk>/',Test.as_view()),
+    path('task',TestList.as_view()),
     path('assign_task',AssignTask.as_view()),
     path('unassigned_task',UnassignedTask.as_view()),
     path('accept_task',AcceptTask.as_view()),
