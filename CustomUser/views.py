@@ -16,6 +16,8 @@ from django.http.response import (
     HttpResponseForbidden,
     JsonResponse,
 )
+import datetime
+
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from rest_framework.response import Response
@@ -431,3 +433,56 @@ class ReferPoint(APIView):
             return HttpResponse('Success')
         else:
             return HttpResponse('Not found')
+
+@csrf_exempt
+def smtpChangePw(payload, email):
+    token = encrypt(
+        {
+            "user": payload,
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=15),
+            "iat": datetime.datetime.utcnow(),
+        }
+    )
+    subject = "Request to change Password."
+    message = (
+        "You have requested to change your password , "
+        + " Please click on this link to do so: "
+        + "http://127.0.0.1:8000/user/changePassword/"
+        + str(token)
+    )
+    print(message)
+    recepient = email
+    send_mail(
+        subject, message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False
+    )
+
+
+@method_decorator(check_token, name="dispatch")
+class ForgotPassword(APIView):
+    def get(self, request, *args, **kwargs):
+        user_obj = UserProfile.objects.get(id=self.kwargs["user"].id)
+        smtpChangePw(self.kwargs["user"].id, user_obj.email)
+
+    def post(self, request, token, *args, **kwargs):
+        try:
+            decrypt = decypher(bytes(token, "utf-8"))
+            user_obj = UserProfile.objects.filter(id=decrypt).first()
+
+            if user_obj is None:
+                raise exceptions.AuthenticationFailed("User not found")
+
+            user_obj.set_password(request.data.get("password"))
+            user_obj.save()
+            return HttpResponse("Success")
+
+        except jwt.DecodeError:
+            raise exceptions.AuthenticationFailed(
+                {"message": "Refresh token error, please try again.", "statusCode": 106}
+            )
+        except jwt.ExpiredSignatureError:
+            raise exceptions.AuthenticationFailed(
+                {
+                    "message": "expired refresh token, please login again.",
+                    "statusCode": 106,
+                }
+            )
