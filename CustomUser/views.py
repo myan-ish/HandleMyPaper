@@ -456,12 +456,13 @@ def smtpChangePw(payload, email):
         subject, message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False
     )
 
+class IssuePassword(APIView):
+    def post(self, request, *args, **kwargs):
+        email=request.data['email']
+        smtpChangePw(self.kwargs["user"].id, email)
+        return HttpResponse('success')
 
-@method_decorator(check_token, name="dispatch")
 class ForgotPassword(APIView):
-    def get(self, request, *args, **kwargs):
-        user_obj = UserProfile.objects.get(id=self.kwargs["user"].id)
-        smtpChangePw(self.kwargs["user"].id, user_obj.email)
 
     def post(self, request, token, *args, **kwargs):
         try:
