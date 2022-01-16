@@ -439,7 +439,7 @@ def smtpChangePw(payload, email):
     message = (
         "You have requested to change your password , "
         + " Please click on this link to do so: "
-        + "http://localhost:3000/changePassword/"
+        + "http://localhost:3000/reset/"
         + str(token)
     )
     print(message)
