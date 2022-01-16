@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.authtoken import views
 from .utils import refresh_token_view
 
-from CustomUser.views import ForgotPassword, GetFields, GetUser, IssuePassword, Login, Register, RegisterExpert, UpdateProfile, activation,UpdateUserPw, smtpChangePw, token_validity
+from CustomUser.views import ForgotPassword, GetFields, GetUser, IssuePassword, Login, NewsLetterSubscription, NewsLetterUnSubscription, Register, RegisterExpert, UpdateProfile, activation,UpdateUserPw, smtpChangePw, token_validity
 
 urlpatterns = [
     path('obtain-token/', views.obtain_auth_token),
@@ -21,5 +21,7 @@ urlpatterns = [
     path('changePassword/<str:token>/', ForgotPassword.as_view()),
     path('issuePassword/', IssuePassword.as_view()),
     path('forgotmail/', smtpChangePw),
+    path('subscribe/',NewsLetterSubscription.as_view()),
+    path('unsubscribe/',NewsLetterUnSubscription.as_view())
 
 ]   

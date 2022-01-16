@@ -1,3 +1,5 @@
+from enum import Flag
+from pyexpat import model
 from django.db import models
 from django.contrib.auth import validators
 from django.contrib.auth.models import AbstractUser
@@ -15,15 +17,15 @@ def random_key(length):
 
 class Profile(models.Model):
     
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,related_name='user', on_delete=models.CASCADE, null=True)
-    fname = models.CharField(max_length=24, null=True)
-    lname = models.CharField(max_length=24, null=True)
-    phone = models.IntegerField(null=True)
-    avatar = models.ImageField(upload_to='avatar/',null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,related_name='user', on_delete=models.CASCADE, null=True,blank=True)
+    fname = models.CharField(max_length=24, null=True,blank=True)
+    lname = models.CharField(max_length=24, null=True,blank=True)
+    phone = models.IntegerField(null=True,blank=True)
+    avatar = models.ImageField(upload_to='avatar/',null=True,blank=True)
     isStaff=models.BooleanField(default=False)
-    referCode=models.TextField(null=True,unique=True)
-    referedBy=models.TextField(null=True)
-    referPoints=models.IntegerField(default=0)
+    referCode=models.TextField(null=True,unique=True,blank=True)
+    referedBy=models.TextField(null=True,blank=True)
+    referPoints=models.IntegerField(default=0,blank=True)
 
     def __str__(self):
         tempCode = random_key(6)
@@ -42,8 +44,8 @@ class Fields(models.Model):
 class Expert(models.Model):
     
     user = models.ForeignKey(settings.AUTH_USER_MODEL,related_name='expert_user', on_delete=models.CASCADE, null=True)
-    field=models.ManyToManyField(Fields)
-    cv= models.FileField(upload_to='cv/')
+    field=models.TextField(null=True,blank=True)
+    cv= models.FileField(upload_to='cv/',blank=True)
     isExpert=models.BooleanField(default=False)
 
     def __str__(self):
@@ -60,3 +62,10 @@ class UserProfile(AbstractUser):
 
     def __str__(self):
         return self.username
+
+class NewsLetter(models.Model):
+    user=models.ForeignKey(UserProfile,null=True,blank=True,on_delete=models.CASCADE)
+    is_subscribed=models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.email+'-->' +str(self.is_subscribed)

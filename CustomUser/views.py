@@ -25,7 +25,7 @@ from rest_framework import authentication, exceptions, permissions, serializers
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework.parsers import JSONParser
-from CustomUser.models import Expert, Fields, Profile, UserProfile
+from CustomUser.models import Expert, Fields, NewsLetter, Profile, UserProfile
 from assignHelp.decorator import check_token
 from .utils import generate_access_token, generate_refresh_token
 from CustomUser.serializer import (
@@ -357,18 +357,10 @@ class RegisterExpert(APIView):
         field = request.data.get("field")
         cv = request.data.get("cv")
 
-        expert_obj, created = Expert.objects.get_or_create(user=self.kwargs["user"])
+        expert_obj, created = Expert.objects.get_or_create(user=self.kwargs['user'],cv=cv,field=field)
         if not created:
             return HttpResponseBadRequest("User is already expert.")
-        for _ in field:
-            try:
-                field_obj=Fields.objects.get(id=_)
-                expert_obj.field.add(field_obj.id)
-            except:
-                pass
-
-        expert_obj.cv = cv
-        expert_obj.save()
+        
         return HttpResponse("Success")
 
 
@@ -447,7 +439,7 @@ def smtpChangePw(payload, email):
     message = (
         "You have requested to change your password , "
         + " Please click on this link to do so: "
-        + "http://127.0.0.1:8000/user/changePassword/"
+        + "http://localhost:3000/changePassword/"
         + str(token)
     )
     print(message)
@@ -487,3 +479,20 @@ class ForgotPassword(APIView):
                     "statusCode": 106,
                 }
             )
+# @method_decorator(check_token, name="dispatch")
+class NewsLetterSubscription(APIView):
+    def get(self,request,*args, **kwargs):
+        # user=self.kwargs['user']
+        news_letter_object,created=NewsLetter.objects.get_or_create(user=UserProfile.objects.get(id=1))
+        news_letter_object.is_subscribed=True
+        news_letter_object.save()
+        return HttpResponse('Success')
+
+# @method_decorator(check_token, name="dispatch")
+class NewsLetterUnSubscription(APIView):
+    def get(self,request,*args, **kwargs):
+        # user=self.kwargs['user']
+        news_letter_object,created=NewsLetter.objects.get_or_create(user=UserProfile.objects.get(id=1))
+        news_letter_object.is_subscribed=False
+        news_letter_object.save()
+        return HttpResponse('Success')

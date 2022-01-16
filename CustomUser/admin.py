@@ -76,6 +76,7 @@ admin.site.register(UserProfile, CustomUserAdmin)
 admin.site.register(Profile)
 admin.site.register(Fields)
 admin.site.register(Expert)
+admin.site.register(NewsLetter)
 
 # app = apps.get_app_config('graphql_auth')
 
