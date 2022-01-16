@@ -56,7 +56,7 @@ def encrypt(payload):
 
 def smtp(payload, email):
     token = encrypt({"user": payload})
-    subject = "Welcome to Sweed."
+    subject = "Welcome to Handle My Paper."
     message = (
         "Hello, "
         + " Please click on this link to activate your account: "
