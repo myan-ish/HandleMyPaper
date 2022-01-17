@@ -1,5 +1,6 @@
 from enum import Flag
 from pyexpat import model
+from turtle import back
 from django.db import models
 from django.contrib.auth import validators
 from django.contrib.auth.models import AbstractUser
@@ -64,7 +65,7 @@ class UserProfile(AbstractUser):
         return self.username
 
 class NewsLetter(models.Model):
-    user=models.ForeignKey(UserProfile,null=True,blank=True,on_delete=models.CASCADE)
+    email=models.EmailField(null=True,blank=True)
     is_subscribed=models.BooleanField(default=False)
 
     def __str__(self):

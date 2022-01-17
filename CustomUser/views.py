@@ -481,9 +481,9 @@ class ForgotPassword(APIView):
             )
 # @method_decorator(check_token, name="dispatch")
 class NewsLetterSubscription(APIView):
-    def get(self,request,*args, **kwargs):
-        # user=self.kwargs['user']
-        news_letter_object,created=NewsLetter.objects.get_or_create(user=UserProfile.objects.get(id=1))
+    def post(self,request,*args, **kwargs):
+        email=request.data['email']
+        news_letter_object,created=NewsLetter.objects.get_or_create(email=email)
         news_letter_object.is_subscribed=True
         news_letter_object.save()
         return HttpResponse('Success')
@@ -491,8 +491,8 @@ class NewsLetterSubscription(APIView):
 # @method_decorator(check_token, name="dispatch")
 class NewsLetterUnSubscription(APIView):
     def get(self,request,*args, **kwargs):
-        # user=self.kwargs['user']
-        news_letter_object,created=NewsLetter.objects.get_or_create(user=UserProfile.objects.get(id=1))
+        email=request.data['email']
+        news_letter_object,created=NewsLetter.objects.get_or_create(email=request.data['email'])
         news_letter_object.is_subscribed=False
         news_letter_object.save()
         return HttpResponse('Success')
