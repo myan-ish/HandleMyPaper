@@ -5,10 +5,15 @@ from django.db.models.expressions import Case
 from django.template.defaultfilters import slugify
 from CustomUser.models import UserProfile
 from enum import Enum
+from CustomUser.models import Expert
 from mediaField.models import File, MediaFile
 
 class Topic(models.Model):
     title=models.TextField(null=True,blank=True,unique=True)
+
+    def __str__(self):
+        return self.title
+
 
 class statusChoice(Enum):
     unassigned=1
@@ -20,12 +25,12 @@ class statusChoice(Enum):
 class Task(models.Model):
     user=models.ForeignKey(UserProfile,null=True,blank=True,on_delete=models.CASCADE)
 
-    doer=models.ForeignKey(UserProfile,null=True,blank=True,on_delete=models.SET_NULL,related_name='task_doer')
+    doer=models.ForeignKey(Expert,null=True,blank=True,on_delete=models.SET_NULL,related_name='task_doer')
 
     status=models.IntegerField(choices=((status.value,status.name) for status in statusChoice),default=1)
 
     title=models.TextField(null=True,blank=True)
-    topic=models.ForeignKey(Topic,on_delete=models.CASCADE,null=True)
+    
     description=models.TextField(null=True,blank=True)
     completion_Date=models.DateField(null=True,blank=True)
     verified=models.BooleanField(default=False)
@@ -40,6 +45,6 @@ class Task(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         return super().save(*args, **kwargs)
-
+    
 
 

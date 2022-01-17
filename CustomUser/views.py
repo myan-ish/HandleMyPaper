@@ -35,6 +35,9 @@ from CustomUser.serializer import (
     UserSer,
     UserSerializer,
 )
+
+
+from django.shortcuts import render, get_object_or_404
 from django.core.mail import send_mail
 from assignHelp import settings
 import jwt
@@ -56,7 +59,7 @@ def encrypt(payload):
 
 def smtp(payload, email):
     token = encrypt({"user": payload})
-    subject = "Welcome to Handle My Paper."
+    subject = "Welcome to Sweed."
     message = (
         "Hello, "
         + " Please click on this link to activate your account: "
@@ -451,8 +454,10 @@ def smtpChangePw(payload, email):
 class IssuePassword(APIView):
     def post(self, request, *args, **kwargs):
         email=request.data['email']
-        smtpChangePw(self.kwargs["user"].id, email)
+        user = get_object_or_404(UserProfile,email=email)
+        smtpChangePw(user.id, email)
         return HttpResponse('success')
+
 
 class ForgotPassword(APIView):
 
@@ -479,6 +484,7 @@ class ForgotPassword(APIView):
                     "statusCode": 106,
                 }
             )
+
 # @method_decorator(check_token, name="dispatch")
 class NewsLetterSubscription(APIView):
     def post(self,request,*args, **kwargs):
