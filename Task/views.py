@@ -1,6 +1,6 @@
 from functools import partial
 from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseNotFound
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from rest_framework.authtoken import serializers
 from rest_framework.response import Response
 from rest_framework import authentication, permissions,exceptions
@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework import mixins, generics
 from django.utils.decorators import method_decorator
 
-from CustomUser.models import UserProfile
+from CustomUser.models import Expert, UserProfile
 from assignHelp.decorator import check_token
 
 from .models import Task
@@ -28,6 +28,17 @@ class TestList(generics.ListAPIView):
             return HttpResponse("Success")
         else:
             return Response(serializer.errors,status=400)
+
+
+@method_decorator(check_token, name='dispatch')
+class GetUnassignedTask(generics.ListAPIView):
+    def get(self,request,*args, **kwargs):
+        expert_instance=get_object_or_404(Expert,user=self.kwargs['user'])
+        queryset = Task.objects.filter(doer=expert_instance,status=1)
+
+        return Response(TaskSerialzier(queryset,many=True).data)
+
+
 
 @method_decorator(check_token, name='dispatch')
 class Test(generics.RetrieveUpdateDestroyAPIView):
