@@ -26,7 +26,6 @@ from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework.parsers import JSONParser
 from CustomUser.models import Expert, Fields, NewsLetter, Profile, UserProfile
-from Task.models import Task
 from assignHelp.decorator import check_token
 from .utils import generate_access_token, generate_refresh_token
 from CustomUser.serializer import (
@@ -405,13 +404,10 @@ class GetUser(APIView):
     def get(self, request, *args, **kwargs):
         response = Response()
         # print(request.user.id)
-        expert_object=get_object_or_404(Expert,user=self.kwargs['user'])
-        exper_query=Task.objects.filter(doer=expert_object)
+        print(self.kwargs["user"])
         response.data = {
             "profile": ProfileSeriL(Profile.objects.get(user=self.kwargs["user"])).data,
             "user": UserSer(self.kwargs["user"]).data,
-            "task_completed": exper_query.filter(status=5).count(),
-            "task_assigned":exper_query.count()
         }
         return response
 
