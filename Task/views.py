@@ -139,9 +139,10 @@ class DeclineTask(APIView):
             task_obj=task_query[0]
             if task_obj.doer==self.kwargs['user']:
                 task_obj.status=1
+                task_obj.doer=None
                 task_obj.save()
                 return JsonResponse({"status":"declined"})
-            return JsonResponse({"status":"declined"})
+            return JsonResponse({"status":"user didn't match"})
         else:
             return HttpResponseBadRequest("Task doesn't exists.")
 
