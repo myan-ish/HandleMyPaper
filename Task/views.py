@@ -1,5 +1,5 @@
 from functools import partial
-from django.http.response import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseNotFound
+from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseNotFound
 from django.shortcuts import render
 from rest_framework.authtoken import serializers
 from rest_framework.response import Response
@@ -104,17 +104,16 @@ class AcceptTask(APIView):
     def post(self,request,*args, **kwargs):
         user=self.kwargs['user']
         taskID=request.data.get('taskID')
-
         task_query=Task.objects.filter(id=taskID)
         
         if task_query.exists():
             task_obj=task_query[0]
-            if task_obj.doer==user:
+            if task_obj.doer.user==user:
                 task_obj.status=3
                 task_obj.save()
                 return Response({"status":"success"})
             else:
-                return HttpResponseNotAllowed('Not allowed')
+                return Response({"status": 'Not allowed'})
         else:
             return HttpResponseBadRequest("Task doesn't exists.")
 
@@ -130,6 +129,8 @@ class DeclineTask(APIView):
             if task_obj.doer==self.kwargs['user']:
                 task_obj.status=1
                 task_obj.save()
+                return JsonResponse({"status":"declined"})
+            return JsonResponse({"status":"declined"})
         else:
             return HttpResponseBadRequest("Task doesn't exists.")
 
