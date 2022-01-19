@@ -2,7 +2,7 @@ from django.contrib.auth.models import User, Group
 from django.db import models
 from rest_framework import serializers
 
-from Task.models import Task
+from Task.models import Task, statusChoice
 from mediaField.models import MediaFile
 
 # class GallerySerializer(serializers.ModelSerializer):
@@ -19,6 +19,10 @@ from mediaField.models import MediaFile
 
 
 class TaskSerialzier(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField()
     class Meta:
         model = Task
         fields = '__all__'
+    
+    def get_status(self,obj:Task):
+        return statusChoice(obj.status).name
