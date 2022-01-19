@@ -137,7 +137,7 @@ class DeclineTask(APIView):
         
         if task_query.exists():
             task_obj=task_query[0]
-            if task_obj.doer==self.kwargs['user']:
+            if task_obj.doer.user==self.kwargs['user']:
                 task_obj.status=1
                 task_obj.doer=None
                 task_obj.save()
