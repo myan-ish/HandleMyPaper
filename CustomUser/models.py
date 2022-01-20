@@ -28,6 +28,9 @@ class Profile(models.Model):
     referPoints=models.IntegerField(default=0,blank=True)
 
     def __str__(self):
+        return self.user.email
+    
+    def save(self,*args, **kwargs):
         tempCode = random_key(6)
         while True:
             if Profile.objects.filter(referCode=tempCode).exists():
@@ -35,8 +38,7 @@ class Profile(models.Model):
             else:
                 break
         self.referCode=tempCode
-
-        return self.user.email
+        return super().save(*args, **kwargs)
 
 class Fields(models.Model):
     title=models.TextField(blank=True,null=True)
