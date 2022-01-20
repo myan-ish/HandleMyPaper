@@ -18,6 +18,7 @@ from django.http.response import (
 )
 import datetime
 
+from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from rest_framework.response import Response
@@ -283,7 +284,7 @@ def activation(request):
             user.save()
     except:
         return JsonResponse(status=400)
-    return JsonResponse({"message": "Congrats, Your account is activaed."})
+    return redirect("http://localhost:3000/login")
 
 
 class Login(APIView):
@@ -360,10 +361,14 @@ class Register(APIView):
 @method_decorator(check_token, name="dispatch")
 class RegisterExpert(APIView):
     def post(self, request, *args, **kwargs):
-        field = request.data.get("field")
+        fields = request.data.get("tags")
         cv = request.data.get("cv")
-
-        expert_obj, created = Expert.objects.get_or_create(user=self.kwargs['user'],cv=cv,field=field)
+        for _ in fields:
+            [Fields.objects.get_or_create(title=_) for _ in fields]
+        
+        expert_obj, created = Expert.objects.get_or_create(user=self.kwargs['user'],cv=cv)
+        expert_obj.set(fields)
+        expert_obj.save()
         if not created:
             return HttpResponseBadRequest("User is already expert.")
         
@@ -407,10 +412,12 @@ class GetUser(APIView):
     def get(self, request, *args, **kwargs):
         response = Response()
         # print(request.user.id)
+        print(self.kwargs["user"])
         response.data = {
             "profile": ProfileSeriL(Profile.objects.get(user=self.kwargs["user"])).data,
             "user": UserSer(self.kwargs["user"]).data,
-            "isExpert":Expert.objects.filter(user=self.kwargs['user'],isExpert=True).exists()
+            "isExpert":Expert.objects.filter(user=self.kwargs['user'], isExpert=True).exists(),
+
         }
         return response
 
