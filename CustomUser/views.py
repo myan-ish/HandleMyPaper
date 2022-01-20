@@ -171,7 +171,7 @@ def smtp(payload, email):
                                 submit your assignment to us and we will ensure to handle your assignment with care and
                                 satisfy you to the fullest.
                             </p>
-                            <a href="'''+ "http://127.0.0.1:8000/user/activate/?token="+ str(token)+'''"
+                            <a href="'''+ "http://127.0.0.1:8000/activate/?token="+ str(token)+'''"
                             <button style="padding: 0.5rem; border: none; background-color: #ab47bc; border-radius: 4px; color: white;">Get Started</button>
                         </div>
                     </td>
