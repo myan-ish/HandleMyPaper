@@ -303,6 +303,9 @@ class Login(APIView):
             raise exceptions.AuthenticationFailed("user not found")
         if not user.check_password(password):
             raise exceptions.AuthenticationFailed("wrong password")
+        
+        if not user.is_active :
+            raise exceptions.AuthenticationFailed("Activate User.")
 
         serialized_user = UserSerializer(user).data
         access_token = generate_access_token(user)

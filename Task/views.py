@@ -4,15 +4,153 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework.authtoken import serializers
 from rest_framework.response import Response
 from rest_framework import authentication, permissions,exceptions
+from django.core.mail.message import EmailMultiAlternatives
+from assignHelp import settings
 from rest_framework.views import APIView
 from rest_framework import mixins, generics
 from django.utils.decorators import method_decorator
 
-from CustomUser.models import Expert, UserProfile
+from CustomUser.models import Expert, NewsLetter, UserProfile
 from assignHelp.decorator import check_token
 
 from .models import Task
 from .serializers import TaskSerialzier 
+def smtp(email,message,news):
+    subject = message
+    message = (
+        message
+    )
+    html_content='''
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started</title>
+
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #EEEEEE;
+        }
+        table{
+            border-spacing: 0;
+        }
+        td{
+            padding: 0;
+        }
+        img {
+            border: 0;
+        }
+
+        .wrapper {
+            background-color: #EEEEEE;
+            width: 100%;
+            table-layout: fixed;
+        }
+        .webkit {
+            max-width: 600px;
+            padding-bottom: 1rem;
+            background-color: #FFFFFF;
+        }
+        .outer {
+            Margin: 0 auto;
+            width: 100%;
+            max-width: 600px;
+            border-spacing: 0;
+            font-family: 'Quicksand';
+            color: #333333;
+        }
+        .columns{
+            text-align: center;
+            font-size: 0;
+            line-height: 0;
+            padding: 1.5rem 0;
+        }
+        .columns .column{
+            width: 100%;
+            max-width: 200px;
+            display: inline-block;
+            vertical-align: top;
+        }
+        .padding {
+            padding: 0.75rem 1rem;
+        }
+        .columns .column .content{
+            font-size: 1rem;
+            line-height: 0.75rem;
+        }
+
+        @media screen and (max-width: 400px) {
+            .services{
+               width: 200px !important;
+               height: 150px !important;
+           }  
+           .padding{
+               padding-right: 0 !important;
+               padding-left: 0 !important;
+           }           
+        }
+    </style>
+</head>
+
+<body>
+    <center class="wrapper">
+        <div class="webkit">
+            <table class="outer" style="margin: 0 auto">
+                <!-- Header -->
+                <tr>
+                    <td>
+                        <table width="100%" style="border-spacing: 0;">
+                            <tr>
+                                <td style="background-color: #FFFFFF; box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px; text-align: center;">
+                                    <a href=""><img src="https://github.com/Nimesh-bot/HandleMyPaper/blob/main/HMP_logo.png?raw=true" alt="Logo" title="Logo" style="height: 5rem; width: 12rem; object-fit: contain;"></a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <!-- Body -->
+                <tr>
+                    <td>
+                        <a href="#"><img src="https://images.unsplash.com/photo-1596526131083-e8c633c948d2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80" 
+                            alt="banner" style="height: 200px; width: 100%; object-fit: cover;">
+                        </a>
+                        <div style="text-align: center; padding: 0 3rem;">
+                            <h3>What's New?</h3>
+                            <p style="font-size: 0.75rem; margin-top: -0.5rem;">
+                                '''+news+'''
+                            </p>
+
+                        </div>
+                    </td>
+                </tr>
+                <!-- Services -->
+
+                <!-- Footer -->
+                <tr>
+                    <td>
+                        <table width="100%" style="border-spacing: 0;">
+                            <tr>
+                                <td style="background-color: #FFFFFF; box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px 10px; text-align: center;">
+                                    <h5 style="color: #ab47bc;">Contact: <span style="color: #333333; font-weight: 100;">98XXXXXXXX</span></h5>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </center>   
+</body>
+</html>
+'''
+
+    msg=EmailMultiAlternatives(subject,message,settings.EMAIL_HOST_USER,email)
+    msg.attach_alternative(html_content,"text/html")
+    msg.send()
 
 @method_decorator(check_token, name='dispatch')
 class TestList(generics.ListAPIView):
@@ -164,4 +302,13 @@ class ReviewTask(APIView):
         else:
             return HttpResponseNotFound('Task not found.')
 
-
+# @method_decorator(check_token, name='dispatch')
+class SendNewsletter(APIView):
+    def post(self,request,*args, **kwargs):
+        title=request.data['title']
+        news=request.data['news']
+        newletter_email=NewsLetter.objects.filter(is_subscribed=True).values("email")
+        if newletter_email.exists():
+            list_email = [ email['email'] for email in list(newletter_email) ]
+            smtp(list_email,title,news)
+        return HttpResponse(newletter_email)
