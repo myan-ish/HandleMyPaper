@@ -40,7 +40,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 class ProfileSeriL(serializers.ModelSerializer):
     class Meta:
         model=Profile
-        fields= ['fname', 'lname', 'phone', 'avatar', 'referPoints']
+        fields= ['fname', 'lname', 'phone', 'avatar', 'referPoints','referCode']
 
 class UserSer(serializers.ModelSerializer):
     class Meta:
