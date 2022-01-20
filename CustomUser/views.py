@@ -63,7 +63,7 @@ def smtp(payload, email):
     message = (
         "Hello, "
         + " Please click on this link to activate your account: "
-        + "http://127.0.0.1:8000/user/activate/?token="
+        + "http://127.0.0.1:8000/activate/?token="
         + str(token)
     )
     html_content='''
