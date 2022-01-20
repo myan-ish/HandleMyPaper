@@ -171,12 +171,10 @@ class TestList(generics.ListAPIView):
 @method_decorator(check_token, name='dispatch')
 class GetUnassignedTask(generics.ListAPIView):
     def get(self,request,*args, **kwargs):
-        expert_instance=Expert.objects.filter(user=self.kwargs['user'])
-        if expert_instance.exists():
-            queryset = Task.objects.filter(doer=expert_instance,status=1)
-            return Response(TaskSerialzier(queryset,many=True).data)
-        else:
-            return JsonResponse('user not expert')
+        expert_instance=get_object_or_404(Expert,user=self.kwargs['user'])
+        queryset = Task.objects.filter(doer=expert_instance,status=1)
+
+        return Response(TaskSerialzier(queryset,many=True).data)
 
 
 

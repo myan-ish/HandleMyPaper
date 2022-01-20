@@ -407,10 +407,10 @@ class GetUser(APIView):
     def get(self, request, *args, **kwargs):
         response = Response()
         # print(request.user.id)
-        print(self.kwargs["user"])
         response.data = {
             "profile": ProfileSeriL(Profile.objects.get(user=self.kwargs["user"])).data,
             "user": UserSer(self.kwargs["user"]).data,
+            "isExpert":Expert.objects.filter(user=self.kwargs['user']).exists()
         }
         return response
 
