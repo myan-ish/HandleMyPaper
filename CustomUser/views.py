@@ -362,12 +362,15 @@ class Register(APIView):
 class RegisterExpert(APIView):
     def post(self, request, *args, **kwargs):
         new_fields=[]
-        fields = request.data.get("tags")
+        fields = request.data.getlist("tags")
+        print(fields)
+        fields=['field','flood']
         cv = request.data.get("cv")
+        description=request.data.get("description")
         for _ in fields:
             new_fields=[Fields.objects.get_or_create(title=_)[0].id for _ in fields]
         
-        expert_obj, created = Expert.objects.get_or_create(user=self.kwargs['user'],cv=cv)
+        expert_obj, created = Expert.objects.get_or_create(user=self.kwargs['user'],cv=cv,description=description)
         expert_obj.field.set(new_fields)
         expert_obj.save()
         if not created:

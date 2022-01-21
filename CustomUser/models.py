@@ -50,6 +50,7 @@ class Expert(models.Model):
     
     user = models.ForeignKey(settings.AUTH_USER_MODEL,related_name='expert_user', on_delete=models.CASCADE, null=True)
     field=models.ManyToManyField(Fields,null=True,blank=True)
+    description=models.TextField(null=True,blank=True)
     cv= models.FileField(upload_to='cv/',blank=True)
     isExpert=models.BooleanField(default=False)
 
