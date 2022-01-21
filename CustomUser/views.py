@@ -368,7 +368,7 @@ class RegisterExpert(APIView):
             new_fields=[Fields.objects.get_or_create(title=_) for _ in fields]
         
         expert_obj, created = Expert.objects.get_or_create(user=self.kwargs['user'],cv=cv)
-        expert_obj.fields.set(new_fields)
+        expert_obj.field.set(new_fields)
         expert_obj.save()
         if not created:
             return HttpResponseBadRequest("User is already expert.")
