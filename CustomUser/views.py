@@ -361,13 +361,14 @@ class Register(APIView):
 @method_decorator(check_token, name="dispatch")
 class RegisterExpert(APIView):
     def post(self, request, *args, **kwargs):
+        new_fields=[]
         fields = request.data.get("tags")
         cv = request.data.get("cv")
         for _ in fields:
-            [Fields.objects.get_or_create(title=_) for _ in fields]
+            new_fields=[Fields.objects.get_or_create(title=_) for _ in fields]
         
         expert_obj, created = Expert.objects.get_or_create(user=self.kwargs['user'],cv=cv)
-        expert_obj.set(fields)
+        expert_obj.fields.set(new_fields)
         expert_obj.save()
         if not created:
             return HttpResponseBadRequest("User is already expert.")
