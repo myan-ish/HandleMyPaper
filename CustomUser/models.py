@@ -43,6 +43,9 @@ class Profile(models.Model):
 class Fields(models.Model):
     title=models.TextField(blank=True,null=True)
 
+    def __str__(self):
+        return self.title
+
 class Expert(models.Model):
     
     user = models.ForeignKey(settings.AUTH_USER_MODEL,related_name='expert_user', on_delete=models.CASCADE, null=True)
