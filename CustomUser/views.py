@@ -365,7 +365,7 @@ class RegisterExpert(APIView):
         fields = request.data.get("tags")
         cv = request.data.get("cv")
         for _ in fields:
-            new_fields=[Fields.objects.get_or_create(title=_) for _ in fields]
+            new_fields=[Fields.objects.get_or_create(title=_)[0].id for _ in fields]
         
         expert_obj, created = Expert.objects.get_or_create(user=self.kwargs['user'],cv=cv)
         expert_obj.field.set(new_fields)
