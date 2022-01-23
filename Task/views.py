@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from functools import partial
 from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponseNotFound
 from django.shortcuts import get_object_or_404, render
@@ -158,7 +159,8 @@ class TestList(generics.ListAPIView):
     serializer_class = TaskSerialzier
 
     def post(self,request,*args, **kwargs):
-        data=request.data
+        data = OrderedDict()
+        data.update(request.data)
         data['user']=self.kwargs['user'].id
         serializer=TaskSerialzier(data=data,partial=True)
         if serializer.is_valid():
@@ -305,6 +307,7 @@ class ReviewTask(APIView):
 # @method_decorator(check_token, name='dispatch')
 class SendNewsletter(APIView):
     def post(self,request,*args, **kwargs):
+        print(request.data)
         title=request.data['title']
         news=request.data['news']
         newletter_email=NewsLetter.objects.filter(is_subscribed=True).values("email")

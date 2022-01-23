@@ -363,17 +363,26 @@ class RegisterExpert(APIView):
     def post(self, request, *args, **kwargs):
         new_fields=[]
         fields = request.data.getlist("tags")
-        
+        print(fields)
+        print(request.data)
         cv = request.data.get("cv")
         description=request.data.get("description")
         for _ in fields:
-            new_fields=[Fields.objects.get_or_create(title=_)[0].id for _ in fields]
+             new_fields=[Fields.objects.get_or_create(title=_)[0].id for _ in fields]
         
-        expert_obj, created = Expert.objects.get_or_create(user=self.kwargs['user'],cv=cv,description=description)
+        expert_obj, created = Expert.objects.get_or_create(user=self.kwargs['user'])
+        
+        if not created:
+            print("safas")
+            raise exceptions.ValidationError("User is already expert.")
+            
+
+        expert_obj.cv = cv
+        expert_obj.description = description
         expert_obj.field.set(new_fields)
         expert_obj.save()
-        if not created:
-            return HttpResponseBadRequest("User is already expert.")
+
+        
         
         return HttpResponse("Success")
 

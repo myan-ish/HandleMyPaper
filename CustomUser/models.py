@@ -22,7 +22,7 @@ class Profile(models.Model):
     lname = models.CharField(max_length=24, null=True,blank=True)
     phone = models.IntegerField(null=True,blank=True)
     avatar = models.ImageField(upload_to='avatar/',null=True,blank=True)
-    isStaff=models.BooleanField(default=False)
+    isStaff = models.BooleanField(default=False)
     referCode=models.TextField(null=True,unique=True,blank=True)
     referedBy=models.TextField(null=True,blank=True)
     referPoints=models.IntegerField(default=0,blank=True)
