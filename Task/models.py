@@ -36,15 +36,10 @@ class Task(models.Model):
     verified=models.BooleanField(default=False)
     attachment=models.FileField(upload_to='documents/',null=True,blank=True)
     active=models.BooleanField(default=False)
-    slug=models.SlugField(null=True,unique=True)
 
     def __str__(self):
         return self.title
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
-        return super().save(*args, **kwargs)
     
 
 
