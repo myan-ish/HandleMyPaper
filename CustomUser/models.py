@@ -1,5 +1,4 @@
 from enum import Flag
-from pyexpat import model
 from django.db import models
 from django.contrib.auth import validators
 from django.contrib.auth.models import AbstractUser
