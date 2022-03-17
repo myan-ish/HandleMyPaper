@@ -161,3 +161,5 @@ EMAIL_HOST_USER = 'handlemypaper@gmail.com'
 EMAIL_HOST_PASSWORD = str('hmp@p@$$88')
 
 
+import django_heroku
+django_heroku.settings(locals())
