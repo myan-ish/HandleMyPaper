@@ -1,0 +1,1 @@
+from assignHelp.wsgi import application
