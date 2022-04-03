@@ -1,1 +1,2 @@
-from assignHelp.wsgi import application
+from assignHelp import wsgi
+application = wsgi.application
