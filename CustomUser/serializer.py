@@ -28,7 +28,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         
         # For Creating user manager is used
         user_obj = UserProfile.objects.create_user(**user_data)
-        my_group = Group.objects.get(name='customer')
+        my_group,created = Group.objects.get_or_create(name='customer')
         my_group.user_set.add(user_obj)
 
         # for user_da in user_data:
