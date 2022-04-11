@@ -9,7 +9,6 @@ class UserProfileManager(BaseUserManager):
         
         user = self.model(email=email,username = username, **extra_fields)
         user.set_password(password)
-        user.is_active=False
         user.save()
         return user
 
