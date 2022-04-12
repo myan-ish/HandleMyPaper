@@ -46,8 +46,6 @@ INSTALLED_APPS = [
     
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
-ALLOWED_HOSTS = ["*"]
 SITE_ID = 1
 
 MIDDLEWARE = [
@@ -59,6 +57,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+ALLOWED_HOSTS=['*']
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'assignHelp.urls'
 
