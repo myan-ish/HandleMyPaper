@@ -307,7 +307,6 @@ class ReviewTask(APIView):
 # @method_decorator(check_token, name='dispatch')
 class SendNewsletter(APIView):
     def post(self,request,*args, **kwargs):
-        print(request.data)
         title=request.data['title']
         news=request.data['news']
         newletter_email=NewsLetter.objects.filter(is_subscribed=True).values("email")

@@ -354,7 +354,6 @@ class Register(APIView):
             smtp(user.pk, email)
             return Response({"User successfully created"})
         else:
-            print(serializer2.errors)
             raise exceptions.ValidationError("User validation Error")
 
 
@@ -363,21 +362,17 @@ class RegisterExpert(APIView):
     def post(self, request, *args, **kwargs):
         new_fields=[]
         fields = request.data.getlist("tags")
-        print(request.data)
         cv = request.data.get("cv")
-        description=request.data.get("description")
         for _ in fields:
              new_fields=[Fields.objects.get_or_create(title=_)[0].id for _ in fields]
         
         expert_obj, created = Expert.objects.get_or_create(user=self.kwargs['user'])
         
         if not created:
-            print("safas")
             raise exceptions.ValidationError("User is already expert.")
             
 
         expert_obj.cv = cv
-        expert_obj.description = description
         expert_obj.field.set(new_fields)
         expert_obj.save()
 
@@ -404,7 +399,6 @@ class UpdateUserPw(APIView):
         currentPassword = request.data.get("currentPassword")
         newPw1 = request.data.get("newPassword")
         newPw2 = request.data.get("validatePassword")
-        print(newPw1, newPw1)
         if newPw1 == newPw2:
             user_obj = UserProfile.objects.get(id=kwargs["id"])
 
@@ -422,8 +416,6 @@ class UpdateUserPw(APIView):
 class GetUser(APIView):
     def get(self, request, *args, **kwargs):
         response = Response()
-        # print(request.user.id)
-        print(self.kwargs["user"])
         response.data = {
             "profile": ProfileSeriL(Profile.objects.get(user=self.kwargs["user"])).data,
             "user": UserSer(self.kwargs["user"]).data,
@@ -466,7 +458,6 @@ def smtpChangePw(payload, email):
         + "http://localhost:3000/reset/"
         + str(token)
     )
-    print(message)
     recepient = email
     send_mail(
         subject, message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False

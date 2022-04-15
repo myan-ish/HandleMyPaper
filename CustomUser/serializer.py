@@ -23,7 +23,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
-        print(validated_data)
         user_data = validated_data.pop('user')
         
         # For Creating user manager is used
