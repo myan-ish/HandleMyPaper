@@ -351,6 +351,8 @@ class Register(APIView):
 
             serializer2.save()
             user = UserProfile.objects.get(email=email)
+            user.is_active = False
+            user.save()
             smtp(user.pk, email)
             return Response({"User successfully created"})
         else:
