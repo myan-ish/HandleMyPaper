@@ -363,7 +363,6 @@ class RegisterExpert(APIView):
     def post(self, request, *args, **kwargs):
         new_fields=[]
         fields = request.data.getlist("tags")
-        print(fields)
         print(request.data)
         cv = request.data.get("cv")
         description=request.data.get("description")
