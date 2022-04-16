@@ -18,7 +18,7 @@ urlpatterns = [
     path('updateUser/<int:id>/', UpdateUserPw.as_view()),
     path('get_user/',GetUser.as_view()),
     path('getField/',GetFields.as_view()),
-    path('changePassword/<str:token>/', ForgotPassword.as_view()),
+    path('changePassword/<str:token>/', ForgotPassword.as_view(),name='change_password'),
     path('issuePassword/', IssuePassword.as_view()),
     path('forgotmail/', smtpChangePw),
     path('subscribe/',NewsLetterSubscription.as_view()),

@@ -58,7 +58,7 @@ def encrypt(payload):
     return token
 
 
-def smtp(payload, email):
+def smtp(request,payload, email):
     token = encrypt({"user": payload})
     subject = "Welcome to Handle My Paper."
     message = (
@@ -284,7 +284,7 @@ def activation(request,token):
             user.save()
     except:
         return JsonResponse(status=400)
-    return redirect("http://localhost:3000/login")
+    return redirect("https://handlemypaper.com/login")
 
 class Login(APIView):
     # queryset = UserSerializer.objects.all()
@@ -352,7 +352,7 @@ class Register(APIView):
             user = UserProfile.objects.get(email=email)
             user.is_active = False
             user.save()
-            smtp(user.pk, email)
+            smtp(request,user.pk, email)
             return Response({"User successfully created"})
         else:
             raise exceptions.ValidationError("User validation Error")
@@ -456,7 +456,7 @@ def smtpChangePw(payload, email):
     message = (
         "You have requested to change your password , "
         + " Please click on this link to do so: "
-        + "http://localhost:3000/reset/"
+        + f"{request.build_absolute_uri('change_password')}/"
         + str(token)
     )
     recepient = email
