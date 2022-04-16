@@ -455,8 +455,7 @@ def smtpChangePw(payload, email):
     message = (
         "You have requested to change your password , "
         + " Please click on this link to do so: "
-        + f"{settings.HOST_URL}changePassword/"
-        + str(token)
+        + "https://handlemypaper.com/reset/"+ str(token)
     )
     recepient = email
     send_mail(
@@ -473,7 +472,7 @@ class IssuePassword(APIView):
 
 class ForgotPassword(APIView):
 
-    def get(self, request, token, *args, **kwargs):
+    def post(self, request, token, *args, **kwargs):
         try:
             decrypt = decypher(bytes(token, "utf-8"))
             user_obj = UserProfile.objects.filter(id=decrypt).first()
