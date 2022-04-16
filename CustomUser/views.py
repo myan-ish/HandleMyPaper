@@ -1,3 +1,4 @@
+from curses.ascii import HT
 from django import http
 from django.http.response import HttpResponse
 from django.shortcuts import render
@@ -275,15 +276,14 @@ def token_validity(request):
 def activation(request,token):
 
     try:
-        token_get = request.GET.get("token")
 
-        decrypt = decypher(bytes(token_get, "utf-8"))
+        decrypt = decypher(bytes(token, "utf-8"))
         user = UserProfile.objects.get(id=decrypt)
         if user:
             user.is_active = True
             user.save()
     except:
-        return JsonResponse(status=400)
+        return HttpResponse("Invalid token",status=400)
     return redirect("https://handlemypaper.com/login")
 
 class Login(APIView):
