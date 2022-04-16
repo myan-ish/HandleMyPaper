@@ -172,7 +172,7 @@ def smtp(request,payload, email):
                                 submit your assignment to us and we will ensure to handle your assignment with care and
                                 satisfy you to the fullest.
                             </p>
-                            <a href="'''+ f"{settings.HOST_URL}activate/?token="+ str(token)+'''"
+                            <a href="'''+ f"{settings.HOST_URL}activate/"+ str(token)+'''"
                             <button style="padding: 0.5rem; border: none; background-color: #ab47bc; border-radius: 4px; color: white;">Get Started</button>
                         </div>
                     </td>
