@@ -1,4 +1,3 @@
-from curses.ascii import HT
 from django import http
 from django.http.response import HttpResponse
 from django.shortcuts import render
@@ -474,7 +473,7 @@ class IssuePassword(APIView):
 
 class ForgotPassword(APIView):
 
-    def post(self, request, token, *args, **kwargs):
+    def get(self, request, token, *args, **kwargs):
         try:
             decrypt = decypher(bytes(token, "utf-8"))
             user_obj = UserProfile.objects.filter(id=decrypt).first()
