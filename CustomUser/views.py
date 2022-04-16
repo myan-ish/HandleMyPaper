@@ -64,7 +64,7 @@ def smtp(payload, email):
     message = (
         "Hello, "
         + " Please click on this link to activate your account: "
-        + "http://127.0.0.1:8000/activate/?token="
+        + f"{request.build_absolute_uri('activate')}/?token="
         + str(token)
     )
     html_content='''
@@ -272,7 +272,7 @@ def token_validity(request):
 
 
 @csrf_exempt
-def activation(request):
+def activation(request,token):
 
     try:
         token_get = request.GET.get("token")
@@ -285,7 +285,6 @@ def activation(request):
     except:
         return JsonResponse(status=400)
     return redirect("http://localhost:3000/login")
-
 
 class Login(APIView):
     # queryset = UserSerializer.objects.all()

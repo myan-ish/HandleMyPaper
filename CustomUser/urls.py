@@ -13,7 +13,7 @@ urlpatterns = [
     path('getNewAccess/',refresh_token_view),
     path('register/',Register.as_view()),
     path('registerExpert/',RegisterExpert.as_view()),
-    path('activate/', activation),
+    path('activate/<str:token>', activation, name='activate'),
     path('updateProfile/<int:id>/', UpdateProfile.as_view()),
     path('updateUser/<int:id>/', UpdateUserPw.as_view()),
     path('get_user/',GetUser.as_view()),
@@ -22,6 +22,6 @@ urlpatterns = [
     path('issuePassword/', IssuePassword.as_view()),
     path('forgotmail/', smtpChangePw),
     path('subscribe/',NewsLetterSubscription.as_view()),
-    path('unsubscribe/',NewsLetterUnSubscription.as_view())
+    path('unsubscribe/',NewsLetterUnSubscription.as_view()),
 
 ]   
