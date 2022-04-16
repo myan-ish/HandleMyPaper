@@ -64,7 +64,7 @@ def smtp(request,payload, email):
     message = (
         "Hello, "
         + " Please click on this link to activate your account: "
-        + f"{request.build_absolute_uri('activate')}/?token="
+        + f"{settings.HOST_URL}activate/?token="
         + str(token)
     )
     html_content='''
@@ -456,7 +456,7 @@ def smtpChangePw(payload, email):
     message = (
         "You have requested to change your password , "
         + " Please click on this link to do so: "
-        + f"{request.build_absolute_uri('change_password')}/"
+        + f"{settings.HOST_URL}changePassword/"
         + str(token)
     )
     recepient = email
